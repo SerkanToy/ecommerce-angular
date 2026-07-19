@@ -49,7 +49,7 @@ namespace ecommerce.api.Extensions
                     jwt.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
                         ValidateIssuer = true,
                         //ValidAudience = builder.Configuration["JWT:Audience"],
                         ValidateAudience = false,
