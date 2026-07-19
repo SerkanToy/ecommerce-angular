@@ -5,12 +5,14 @@ using ecommerce.api.Models.Services.IServices;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ecommerce.api.Extensions
 {
     public static class WebApplicationBuilderExtensions
     {
-        public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder, IConfiguration configuration)
         {
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<Data.Context>(options => options.UseSqlServer(connectionString));
@@ -38,11 +40,36 @@ namespace ecommerce.api.Extensions
                     aut.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     aut.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddCookie()
-                .AddJwtBearer();
+                .AddCookie(cookie =>
+                {
+                    cookie.Cookie.Name = SD.IdentityAppCookie;
+                })
+                .AddJwtBearer(jwt =>
+                {
+                    jwt.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!))
+                        ValidateIssuer = true,
+                        //ValidAudience = builder.Configuration["JWT:Audience"],
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                    jwt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = con =>
+                        {
+                            //context.Response.Cookies.Append(SD.IdentityAppCookie, context.Request.Cookies[SD.IdentityAppCookie] ?? string.Empty);
+                            con.Response.Headers.Add(SD.IdentityAppCookie,"true");
+                            con.Token = con.Request.Cookies[SD.IdentityAppCookie];
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
-
-            builder.Services.AddScoped(typeof(ITokenService),typeof(TokenService));
+            builder.Services.AddAuthorization();
+            builder.Services.AddTransient(typeof(ITokenService),typeof(TokenService));
 
 
             return builder;
