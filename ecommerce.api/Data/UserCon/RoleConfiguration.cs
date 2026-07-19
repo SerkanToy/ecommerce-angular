@@ -10,7 +10,7 @@ namespace ecommerce.api.Data.UserCon
         {
             builder.ToTable("Roles");
             builder.HasKey(u => u.Id);
-            builder.HasMany(u => u.Roles).WithOne(y => y.Role).OnDelete(DeleteBehavior.NoAction);
+            //builder.HasMany(u => u.Roles).WithOne(y => y.RoleApp).OnDelete(DeleteBehavior.NoAction);
             builder.HasData(roles());
         }
 

@@ -13,7 +13,7 @@ namespace ecommerce.api.Data.UserCon
         {
             builder.HasKey(u => u.Id);
             builder.HasIndex(u => u.Email).IsUnique();
-            builder.HasMany(u => u.Roles).WithOne(y => y.User).OnDelete(DeleteBehavior.NoAction);
+           // builder.HasMany(u => u.Roles).WithOne(y => y.UserApp).OnDelete(DeleteBehavior.NoAction);
             builder.HasData(User());
         }
 

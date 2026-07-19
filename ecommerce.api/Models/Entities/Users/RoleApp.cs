@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ecommerce.api.Models.Entities.Users
 {
@@ -15,6 +16,7 @@ namespace ecommerce.api.Models.Entities.Users
 
         public DateTime CreateAt { get; set; }
         public bool IsActive { get; set; }
+        [NotMapped]
         public ICollection<UserRoleBridge> Roles { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ecommerce.api.Models.Entities.Users
 {
@@ -14,9 +15,10 @@ namespace ecommerce.api.Models.Entities.Users
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string FullName => $"{FirstName} {LastName}";        
+        public string FullName => $"{FirstName} {LastName}";
+        [NotMapped]
         public ICollection<UserRoleBridge> Roles { get; set; }
-        public string Salt { get; set; }
+        public string? Salt { get; set; }
 
         #region Audit Log
         public DateTimeOffset CreateAt { get; set; }

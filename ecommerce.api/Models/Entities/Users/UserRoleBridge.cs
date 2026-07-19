@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ecommerce.api.Models.Entities.Users
 {
@@ -9,11 +11,10 @@ namespace ecommerce.api.Models.Entities.Users
             CreateAt = DateTime.UtcNow;
             IsActive = true;
         }
-
-        public UserApp User { get; set; }
-        public override Guid UserId { get; set; }
-        public RoleApp Role { get; set; }
-        public override Guid RoleId { get; set; }
+        [NotMapped]
+        public UserApp? UserApp { get; set; }
+        [NotMapped]
+        public RoleApp? RoleApp { get; set; }        
         public DateTime CreateAt { get; set; }
         public bool IsActive { get; set; }
     }
