@@ -1,36 +1,25 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ecommerce.api.Models.Entities.Users;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ecommerce.api.Models.Entities.Users
+namespace ecommerce.api.Models.Entities
 {
-    public class UserApp: IdentityUser<Guid>
+    public class Entity
     {
-        public UserApp()
-        {
-            Id = Guid.CreateVersion7();
-            CreateAt = DateTime.UtcNow;
-            IsActive = true;
-            Roles = new List<UserRoleBridge>();
-        }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName => $"{FirstName} {LastName}";        
-        public ICollection<UserRoleBridge> Roles { get; set; }
-        public string Salt { get; set; }
-
         #region Audit Log
-        public DateTimeOffset CreateAt { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTimeOffset CreateAt { get; set; } = DateTimeOffset.Now;
         public Guid CreateUserId { get; set; }
+        public string CreateUserName => GetCreateUserName();
         public DateTimeOffset? UpdateAt { get; set; }
         public Guid? UpdateUserId { get; set; }
-        public bool IsActive { get; set; }
+        public string? UpdateUserName => GetUpdateUserName();
         public bool IsDeleted { get; set; }
         public DateTimeOffset? DeleteAt { get; set; }
+        [NotMapped]
+        public string? DeleteUserName => GetDeleteUserName();
         public Guid? DeleteUserId { get; set; }
 
-        public string CreateUserName => GetCreateUserName();
-        public string? UpdateUserName => GetUpdateUserName();
-        public string? DeleteUserName => GetDeleteUserName();
 
         private string GetCreateUserName()
         {
@@ -74,7 +63,6 @@ namespace ecommerce.api.Models.Entities.Users
 
             return appUser.LastName + " " + appUser.FirstName + " (" + appUser.Email + ")";
         }
-
         #endregion
     }
 }
