@@ -11,9 +11,9 @@ namespace ecommerce.api.Models
         }
 
         public UserApp User { get; set; }
-        public override Guid UserId { get; set; } = default!;
+        public override Guid UserId { get; set; }
         public RoleApp Role { get; set; }
-        public override Guid RoleId { get; set; } = default!;
+        public override Guid RoleId { get; set; }
         public DateTime CreateAt { get; set; }
         public bool IsActive { get; set; }
     }
