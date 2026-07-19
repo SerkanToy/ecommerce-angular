@@ -1,4 +1,4 @@
-﻿using ecommerce.api.Models;
+﻿using ecommerce.api.Models.Entities.Users;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

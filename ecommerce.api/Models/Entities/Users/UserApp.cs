@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace ecommerce.api.Models
+namespace ecommerce.api.Models.Entities.Users
 {
     public class UserApp: IdentityUser<Guid>
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 
-namespace ecommerce.api.Models
+namespace ecommerce.api.Models.Entities.Users
 {
     public class RoleApp : IdentityRole<Guid>
     {
