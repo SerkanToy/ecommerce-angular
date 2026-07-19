@@ -2,9 +2,9 @@
 using ecommerce.api.Models.DTOs;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ecommerce.api.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace ecommerce.api.Controllers
 {
