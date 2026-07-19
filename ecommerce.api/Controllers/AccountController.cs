@@ -1,6 +1,7 @@
 ﻿using ecommerce.api.Models;
 using ecommerce.api.Models.DTOs;
 using ecommerce.utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,5 +41,26 @@ namespace ecommerce.api.Controllers
                 data: await CreateAppUserDtoAsync(user)
             ));
         }
+
+        [Authorize]
+        [HttpGet]
+        [ActionName("refresh-user")]
+        public async Task<ActionResult<UserAppDto>> RefreshAppUser()
+        {
+            var user = await userManager.Users.Where(x => x.Id == User.GetUserId()).FirstOrDefaultAsync();
+            if (user is null)
+            {
+                RemoveJwtCookie();
+                return Unauthorized(new ApiResponse(401, message: "Kullanıcı bulunamadı", displayByDefault: true));
+            }
+
+
+            return Ok(new ApiResponse(
+                statusCode: 200,
+                message: "Giriş başarılı",
+                data: await CreateAppUserDtoAsync(user)
+            ));
+        }
+
     }
 }
