@@ -1,10 +1,14 @@
-﻿using ecommerce.api.Models;
+﻿using ecommerce.api.Extensions;
+using ecommerce.api.Models;
 using ecommerce.api.Models.DTOs;
+using ecommerce.api.Models.Entities.Users;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ecommerce.api.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace ecommerce.api.Controllers
 {
@@ -90,6 +94,56 @@ namespace ecommerce.api.Controllers
         {
             var data = User.Identity?.IsAuthenticated ?? false;
             return Ok(new { IsAuthenticated = data });
+        }
+
+        [HttpPost]
+        [ActionName("register")]
+        public async Task<IActionResult> Register(RegisterDto registerDto)
+        {
+            if (await CheckEmailExistsAsync(registerDto.Email))
+            {
+                return BadRequest("Email adresi kayıtlı.");
+            }
+
+            if (await CheckEmailExistsAsync(registerDto.Email))
+            {
+                return BadRequest("Kullanıcı adı kayıtlı.");
+            }
+
+            UserApp user = new UserApp
+            {
+                Email = registerDto.Email,
+                LastName = registerDto.LastName,
+                FirstName = registerDto.FisrtName,
+                UserName = registerDto.Email,
+                Salt = CreatePasswordHash(registerDto.Password)
+            };
+
+            user.CreateUserId = user.Id;
+            user.CreateAt = DateTimeOffset.UtcNow;
+
+            IdentityResult result = await userManager.CreateAsync(user, registerDto.Password);
+
+            if (!result.Succeeded) return BadRequest(result.Errors);
+
+            result = await userManager.AddToRoleAsync(user, SD.UserRole);
+
+            if (!result.Succeeded) return BadRequest(result.Errors);
+
+            return Ok($"İşlem Başarılı");
+        }
+
+
+        private string CreatePasswordHash(string password)
+        {
+            byte[] salt = RandomNumberGenerator.GetBytes(128 / 8);
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password!,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+            return hashed;
         }
 
     }

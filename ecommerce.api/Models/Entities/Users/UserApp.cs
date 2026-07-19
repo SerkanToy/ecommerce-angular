@@ -14,10 +14,19 @@ namespace ecommerce.api.Models.Entities.Users
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public Guid CreateUserId { get; set; }
-        public string FullName => $"{FirstName} {LastName}";
-        public DateTime CreateAt { get; set; }
-        public bool IsActive { get; set; }
+        public string FullName => $"{FirstName} {LastName}";        
         public ICollection<UserRoleBridge> Roles { get; set; }
+        public string Salt { get; set; }
+
+        #region Audit Log
+        public DateTimeOffset CreateAt { get; set; }
+        public Guid CreateUserId { get; set; }
+        public DateTimeOffset? UpdateAt { get; set; }
+        public Guid? UpdateUserId { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTimeOffset? DeleteAt { get; set; }
+        public Guid? DeleteUserId { get; set; }
+        #endregion
     }
 }
