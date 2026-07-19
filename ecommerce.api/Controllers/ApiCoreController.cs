@@ -1,5 +1,6 @@
 ﻿using ecommerce.api.Data;
 using ecommerce.api.Models.Entities.Users;
+using ecommerce.api.Models.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
