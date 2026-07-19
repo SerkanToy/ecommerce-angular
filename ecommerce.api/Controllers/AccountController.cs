@@ -62,5 +62,12 @@ namespace ecommerce.api.Controllers
             ));
         }
 
+        [HttpGet]
+        [ActionName("name-taken")]
+        public async Task<IActionResult> NameTaken([FromQuery] string name)
+        {
+            return Ok(new { IsToken = await CheckNameExistsAsync(name) });
+        }
+
     }
 }
