@@ -69,5 +69,28 @@ namespace ecommerce.api.Controllers
             return Ok(new { IsToken = await CheckNameExistsAsync(name) });
         }
 
+        [HttpGet]
+        [ActionName("email-taken")]
+        public async Task<IActionResult> EmailTaken([FromQuery] string email)
+        {
+            return Ok(new { IsToken = await CheckEmailExistsAsync(email) });
+        }
+
+        [Authorize]
+        [HttpGet]
+        [ActionName("logout")]
+        public IActionResult Logout()
+        {
+            RemoveJwtCookie();
+            return NoContent();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> isAuthenticated()
+        {
+            var data = User.Identity?.IsAuthenticated ?? false;
+            return Ok(new { IsAuthenticated = data });
+        }
+
     }
 }
