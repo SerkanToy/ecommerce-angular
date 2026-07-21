@@ -1,9 +1,11 @@
 ﻿using ecommerce.api.Data;
+using ecommerce.api.Models;
 using ecommerce.api.Models.Entities.Users;
 using ecommerce.api.Models.Services;
 using ecommerce.api.Models.Services.IServices;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -12,7 +14,33 @@ namespace ecommerce.api.Extensions
 {
     public static class WebApplicationBuilderExtensions
     {
-        public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder, IConfiguration configuration)
+        public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddDbContext<Context>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            builder.Services.AddTransient(typeof(ITokenService), typeof(TokenService));
+            //builder.Services.AddCors();
+
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var errors = actionContext.ModelState
+                    .Where(e => e.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors)
+                    .Select(x => x.ErrorMessage).ToArray();
+
+                    var errorResponse = new ApiResponse(400, errors: errors);
+                    return new BadRequestObjectResult(errorResponse);
+                };
+            });
+
+            return builder;
+        }
+        public static WebApplicationBuilder AddAuthentiocanServices(this WebApplicationBuilder builder)
         {
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<Data.Context>(options => options.UseSqlServer(connectionString));
@@ -69,7 +97,7 @@ namespace ecommerce.api.Extensions
                 });
 
             builder.Services.AddAuthorization();
-            builder.Services.AddTransient(typeof(ITokenService),typeof(TokenService));
+            
 
 
             return builder;
