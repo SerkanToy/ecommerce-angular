@@ -90,6 +90,7 @@ namespace ecommerce.api.Controllers
         }
 
         [HttpGet]
+        [ActionName("isauthenticated")]
         public async Task<IActionResult> isAuthenticated()
         {
             var data = User.Identity?.IsAuthenticated ?? false;
