@@ -80,7 +80,8 @@ namespace ecommerce.api.Controllers
             return new UserAppDto
             {
                 Name = $"{user.LastName} {user.FirstName}",
-                JWT = jwt
+                Jwt = jwt,
+                MfaToken = ""
             };
         }
 

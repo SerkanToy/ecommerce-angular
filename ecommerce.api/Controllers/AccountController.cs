@@ -39,11 +39,19 @@ namespace ecommerce.api.Controllers
                 RemoveJwtCookie();
                 return Unauthorized(new ApiResponse(401, message: message, displayByDefault: true, isHtmlEnabled: true));
             }
-            return Ok(new ApiResponse(
+            /*return Ok(new ApiResponse(
                 statusCode: 200,
                 message: "Giriş başarılı",
                 data: await CreateAppUserDtoAsync(user)
-            ));
+            ));*/
+            var data = await CreateAppUserDtoAsync(user);
+            return Ok(new UserAppDto {
+                Name = data.Name,
+                Jwt = data.Jwt,
+                MfaToken = data.MfaToken
+            });
+
+
         }
 
         [Authorize]

@@ -15,19 +15,19 @@ var app = builder.Build();
 
 //app.MapOpenApi();
 
-app.UseCors(opt => opt
+/*app.UseCors(opt => opt
     .WithOrigins("https://localhost:4200")
     .AllowAnyHeader()
     .AllowAnyMethod()
-    .AllowCredentials());
+    .AllowCredentials());*/
 
-/*app.UseCors(opt =>
+app.UseCors(opt =>
 {
     opt.AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
     .WithOrigins(builder.Configuration["JWT:ClientUrl"]!);
-});*/
+});
 
 app.UseHttpsRedirection();
 

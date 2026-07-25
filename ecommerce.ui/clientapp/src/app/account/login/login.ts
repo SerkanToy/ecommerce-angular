@@ -3,16 +3,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccountService } from '../account.service';
 import { Validationmessage } from '../../shared/components/validationmessage/validationmessage';
-import { email } from '@angular/forms/signals';
-import { NgIf } from "../../../../node_modules/@angular/common/types/_common_module-chunk";
 
 @Component({
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
     Validationmessage,
-    Validationmessage,
-    NgIf
+    Validationmessage
 ],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -22,7 +19,7 @@ export class Login implements OnInit {
   submitted = false;
   errorMessage: string[] = [];
   returnUrl: string | null = null;
-  button = false;
+  button = true;
 
   constructor(private formBuilder: FormBuilder,
           private router: Router,
@@ -44,16 +41,21 @@ export class Login implements OnInit {
   }
 
   login(){
-    console.log("Tıklandı...")
-    this.button = true;
+    console.log("Tıklandı...");
+    this.button = false;
     this.accountService.login(this.form.value).subscribe({
-      next: res => {
-        console.log(res);
-        this.button = false;
+      next: _ => {                
+        if(this.returnUrl)
+        {                     
+          this.router.navigateByUrl(this.returnUrl);          
+        }
+        else
+        {           
+           this.router.navigateByUrl("/");
+        }        
       },
       error: error => {
-        console.log(error);
-        this.button = false;
+        console.log(error);        
       }
     });
   }
