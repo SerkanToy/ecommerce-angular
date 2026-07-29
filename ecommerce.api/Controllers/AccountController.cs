@@ -39,22 +39,23 @@ namespace ecommerce.api.Controllers
                 RemoveJwtCookie();
                 return Unauthorized(new ApiResponse(401, message: message, displayByDefault: true, isHtmlEnabled: true));
             }
-            /*return Ok(new ApiResponse(
+            return Ok(new ApiResponse(
                 statusCode: 200,
                 message: "Giriş başarılı",
                 data: await CreateAppUserDtoAsync(user)
-            ));*/
-            var data = await CreateAppUserDtoAsync(user);
+            ));
+
+            /*var data = await CreateAppUserDtoAsync(user);
             return Ok(new UserAppDto {
                 Name = data.Name,
                 Jwt = data.Jwt,
                 MfaToken = data.MfaToken
-            });
+            });*/
 
 
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [ActionName("refresh-user")]
         public async Task<ActionResult<UserAppDto>> RefreshAppUser()
@@ -89,7 +90,7 @@ namespace ecommerce.api.Controllers
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpPost]
         [ActionName("logout")]
         public IActionResult Logout()
         {
@@ -97,12 +98,18 @@ namespace ecommerce.api.Controllers
             return NoContent();
         }
 
+        //[Authorize]
         [HttpGet]
         [ActionName("isauthenticated")]
-        public async Task<IActionResult> isAuthenticated()
+        public async Task<ActionResult<ApiResponse>> isAuthenticated()
         {
-            var data = User.Identity?.IsAuthenticated ?? false;
-            return Ok(new { IsAuthenticated = data });
+            var veri = User.Identity?.Name;
+            var dataIs = User.Identity?.IsAuthenticated == true ? true : false; // new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false }
+            return Ok(new ApiResponse(
+                    statusCode: 200,
+                    data: new IsAuthenticatedDto { IsAuthenticated = dataIs }
+                ));
+
         }
 
         [HttpPost]

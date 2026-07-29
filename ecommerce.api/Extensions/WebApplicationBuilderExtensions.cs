@@ -1,13 +1,16 @@
-﻿using ecommerce.api.Data;
+﻿using Azure;
+using ecommerce.api.Data;
 using ecommerce.api.Models;
 using ecommerce.api.Models.Entities.Users;
 using ecommerce.api.Models.Services;
 using ecommerce.api.Models.Services.IServices;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using System.Text;
 
 namespace ecommerce.api.Extensions
@@ -58,8 +61,8 @@ namespace ecommerce.api.Extensions
                     opt.Lockout.MaxFailedAccessAttempts = SD.MaxFailedAccessAttempts;
                     opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(SD.DefaultLockoutTimeSpanInDays);
                 })
-                .AddRoles<RoleApp>()
-                .AddEntityFrameworkStores<Context>();
+                .AddRoles<RoleApp>()                
+                .AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
 
             builder.Services
                 .AddAuthentication(aut =>
@@ -79,6 +82,7 @@ namespace ecommerce.api.Extensions
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
                         ValidateIssuer = true,
+                        ValidIssuer = builder.Configuration["JWT:Issuer"],
                         //ValidAudience = builder.Configuration["JWT:Audience"],
                         ValidateAudience = false,
                         ValidateLifetime = true,
@@ -88,11 +92,25 @@ namespace ecommerce.api.Extensions
                     {
                         OnMessageReceived = con =>
                         {
-                            //context.Response.Cookies.Append(SD.IdentityAppCookie, context.Request.Cookies[SD.IdentityAppCookie] ?? string.Empty);
-                            con.Response.Headers.Add(SD.IdentityAppCookie,"true");
                             con.Token = con.Request.Cookies[SD.IdentityAppCookie];
                             return Task.CompletedTask;
                         }
+
+
+                        /*OnMessageReceived = context =>
+                        {
+                            if (context.Request.Query.ContainsKey(SD.IdentityAppCookie))
+                            {
+                                string? token = context.Request.Query[SD.IdentityAppCookie][0];
+
+                                if (!string.IsNullOrEmpty(token))
+                                {
+                                    if (!context.Request.Headers.ContainsKey(HeaderNames.Authorization))
+                                        context.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+                                }
+                            }
+                            return Task.CompletedTask;
+                        }*/
                     };
                 });
 

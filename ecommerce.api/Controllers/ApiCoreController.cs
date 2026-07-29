@@ -96,7 +96,8 @@ namespace ecommerce.api.Controllers
                 SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(int.Parse(configuration["Jwt:ExpiresInDays"]))
             };
-            httpContext.Response.Cookies.Append(SD.IdentityAppCookie, jwt, cookieOptions);
+            Response.Cookies.Append(SD.IdentityAppCookie, jwt, cookieOptions);
+            //httpContext.Response.Cookies.Append(SD.IdentityAppCookie, jwt, cookieOptions);
             //Response.Cookies.Append(SD.IdentityAppCookie, jwt, cookieOptions);
         }
 

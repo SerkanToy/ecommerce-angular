@@ -5,8 +5,10 @@ import { ApiResponse } from './models/apiRespose';
 @Injectable({
   providedIn: 'root',
 })
+
 export class SharedService {
-  constructor(private toastr: ToastrService,private models: Notification){}
+
+  constructor(private toastr: ToastrService){}
 
   showNotification(apiResponse: ApiResponse<any>, backdrop: boolean = false){
     let isSuccess = false;
@@ -25,7 +27,7 @@ export class SharedService {
         this.toastr.error(apiResponse.message,apiResponse.title);
       }
     }
-    const modalRef = this.models.onshow;
+    const modalRef = this.toastr.show;
     
 
   }

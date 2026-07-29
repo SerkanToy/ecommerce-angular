@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ecommerce.utility
+﻿namespace ecommerce.utility
 {
     public static class SD
     {
         // Cookie
-        public static readonly string IdentityAppCookie = "SerkanToy";
+        public static readonly string IdentityAppCookie = "identityappcookie";
 
         public const string NameRegex = "^[a-zA-ZçÇğĞıİöÖşŞüÜ]*$";
         public const string EmailRegex = "^.+@[^\\.].*\\.[a-z]{2,}$";

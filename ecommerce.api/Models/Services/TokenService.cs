@@ -19,10 +19,10 @@ namespace ecommerce.api.Models.Services
         public async Task<string> CreateJWTAsync(UserApp user)
         {
             var claim = new List<Claim> {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("uid", user.Id.ToString()),
                 new Claim("FullName", $"{user.FirstName} {user.LastName}"),
-                new Claim(ClaimTypes.Name, $"{user.UserName}"),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim("UserName", $"{user.UserName}"),
+                new Claim("Email", user.Email)
             };
 
             var credentials = new SigningCredentials(symmetricSecurityKey,SecurityAlgorithms.HmacSha256);

@@ -26,6 +26,6 @@ export class Navbar {
 
   logout()
   {
-    
+    this.accountService.logout().subscribe();
   }
 }

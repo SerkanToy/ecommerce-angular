@@ -31,18 +31,23 @@
                     routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
                 <a class="my-2 text-gray-700 transition-colors duration-300 transform hover:text-blue-500 dark:hover:text-blue-400 md:mx-4 md:my-0"
                     routerLink="/play" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Play</a>
-                <a class="my-2 text-gray-700 transition-colors duration-300 transform hover:text-blue-500 dark:hover:text-blue-400 md:mx-4 md:my-0"
-                    routerLink="/account/login" routerLinkActive="active"
-                    [routerLinkActiveOptions]="{exact:true}">login</a>
-                <a class="my-2 text-gray-700 transition-colors duration-300 transform hover:text-blue-500 dark:hover:text-blue-400 md:mx-4 md:my-0"
-                    routerLink="/account/register" routerLinkActive="active"
-                    [routerLinkActiveOptions]="{exact:true}">register</a>
+
+                @if(!accountService.$user())
+                {
+                    <a class="my-2 text-gray-700 transition-colors duration-300 transform hover:text-blue-500 dark:hover:text-blue-400 md:mx-4 md:my-0"
+                        routerLink="/account/login" routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact:true}">login</a>
+                    <a class="my-2 text-gray-700 transition-colors duration-300 transform hover:text-blue-500 dark:hover:text-blue-400 md:mx-4 md:my-0"
+                        routerLink="/account/register" routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact:true}">register</a>
+                }
+                
             </div>
 
             @if(!accountService.$user()){
 
-            
-                <div class="flex justify-center md:block">
+
+            <div class="flex justify-center md:block">
                 <a class="relative text-gray-700 transition-colors duration-300 transform hover:text-gray-600 dark:hover:text-gray-300"
                     href="#">
                     <svg class="w-5 h-5 cursor-pointer" viewBox="0 0 24 24" fill="none"
@@ -82,11 +87,15 @@
             </div>
 
             }
-           
+
 
             @if(accountService.$user(); as user)
             {
-
+            <span
+                class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 inset-ring inset-ring-green-500/20">
+                {{user.data.name}}
+            </span>
+            <div class="w-5 h-5"></div>
             <div class="flex justify-center md:block">
                 <a
                     class="relative text-gray-700 transition-colors duration-300 transform hover:text-gray-600 dark:hover:text-gray-300">
@@ -109,14 +118,14 @@
 
                 @if(collapsed){
                 <div [ngClass]="{'collapsed':collapsed}">
-                    <span>{{user.name}}</span>
+                    <span>{{user.data.name}}</span>
                 </div>
                 }
             </div>
 
             <div class="w-5 h-5"></div>
             <div class="flex justify-center md:block">
-                <a
+                <a (click)="logout()"
                     class="relative text-gray-700 transition-colors duration-300 transform hover:text-gray-600 dark:hover:text-gray-300">
                     <svg class="w-5 h-5 cursor-pointer" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">

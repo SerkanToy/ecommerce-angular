@@ -3,8 +3,9 @@ import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LoginModel } from '../shared/models/account/login_model';
-import { UserModel } from '../shared/models/account/user_model';
+import { AutStatusModel, UserModel } from '../shared/models/account/user_model';
 import { map } from 'rxjs';
+import { ApiResponse } from '../shared/models/apiRespose';
 
 
 @Injectable({
@@ -12,26 +13,41 @@ import { map } from 'rxjs';
 })
 export class AccountService {
   apiUrl = environment.apiUrl;
-  $user = signal<UserModel | null>(null);
-  constructor(private http: HttpClient, private route: Router)
-  {
+  $user = signal<ApiResponse<UserModel> | null>(null);
+  constructor(private http: HttpClient, private route: Router) {
 
   }
 
-  login(model:LoginModel){    
-    return this.http.post<UserModel>(`https://localhost:7011/account/login`,model,{
-      withCredentials:true
-    }).pipe(map((user:UserModel) => {
-      if(user)
-      {        
+  autStatus() {
+    return this.http.get<ApiResponse<AutStatusModel>>(`${environment.apiUrl}account/isauthenticated`);
+  }
+
+  refreshUser() {
+    return this.http.get<ApiResponse<UserModel>>(`${environment.apiUrl}account/refresh-user`).pipe(map((user: ApiResponse<UserModel>) => {
+          if(user)
+          {
+            this.setUser(user);
+          }
+        }));
+  }
+
+  logout() {
+    return this.http.post<{}>(`${environment.apiUrl}account/logout`, {}).pipe(map(() => {
+      this.$user.set(null);
+      this.route.navigateByUrl("/");
+    }));
+  }
+
+  login(model: LoginModel) {
+    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`, model).pipe(map((user: ApiResponse<UserModel>) => {
+      if (user) {
         this.setUser(user);
         //return user;
       }
     }));
   }
 
-  private setUser(user:UserModel)
-  {
+  private setUser(user: ApiResponse<UserModel>) {
     this.$user.set(user);
   }
 }

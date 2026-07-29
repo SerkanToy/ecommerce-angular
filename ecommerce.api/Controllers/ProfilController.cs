@@ -1,9 +1,11 @@
 ﻿using ecommerce.api.Models;
 using ecommerce.api.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ecommerce.api.Controllers
 {
+    [Authorize]
     [Route("profil/[action]")]
     [ApiController]
     public class ProfilController : ApiCoreController
