@@ -12,12 +12,12 @@ namespace ecommerce.api.Models.DTOs
         public string Email { get; set; }
         [Required]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Ad en az 2 en fazla 50 karakter olmalıdır.")]
-        [RegularExpression(SD.NameRegex, ErrorMessage = "Ad sadece harflerden oluşmalıdır.")]
+        //[RegularExpression(SD.NameRegex, ErrorMessage = "Ad sadece harflerden oluşmalıdır.")]
         public string LastName { get; set; }
         [Required]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Soyad en az 2 en fazla 50 karakter olmalıdır.")]
-        [RegularExpression(SD.NameRegex, ErrorMessage = "Soyad sadece harflerden oluşmalıdır.")]
-        public string FisrtName { get; set; }
+        //[RegularExpression(SD.NameRegex, ErrorMessage = "Soyad sadece harflerden oluşmalıdır.")]
+        public string FirstName { get; set; }
         [Required]
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Şifre en az 6 en fazla 50 karakter olmalıdır.")]
         public string Password { get; set; }

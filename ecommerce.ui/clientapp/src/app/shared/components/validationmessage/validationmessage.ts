@@ -6,6 +6,6 @@ import { Component, Input } from '@angular/core';
   templateUrl: './validationmessage.html',
   styleUrl: './validationmessage.css',
 })
-export class Validationmessage {
+export class ValidationMessage {
   @Input() erromessage: string[] | undefined;
 }

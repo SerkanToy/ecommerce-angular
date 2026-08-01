@@ -130,7 +130,7 @@ namespace ecommerce.api.Controllers
             {
                 Email = registerDto.Email,
                 LastName = registerDto.LastName,
-                FirstName = registerDto.FisrtName,
+                FirstName = registerDto.FirstName,
                 UserName = registerDto.Email,
                 Salt = CreatePasswordHash(registerDto.Password)
             };

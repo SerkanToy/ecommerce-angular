@@ -28,7 +28,5 @@ export class SharedService {
       }
     }
     const modalRef = this.toastr.show;
-    
-
   }
 }
