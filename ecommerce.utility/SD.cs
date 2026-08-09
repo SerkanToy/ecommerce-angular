@@ -2,6 +2,7 @@
 {
     public static class SD
     {
+        private static readonly Random _random = new Random();
         // Cookie
         public static readonly string IdentityAppCookie = "identityappcookie";
 
@@ -35,6 +36,10 @@
         public const string IdentityAppTokenProvider = "web";
         public const string IdentityAppTokenName = "access_token";
 
+        // Naming
+        public const string EC = "ec";
+        public const string FUP = "fup";
+
         public static string AccountLockedMessage(DateTime endDate)
         {
             DateTime startDate = DateTime.UtcNow;
@@ -46,5 +51,15 @@
             return string.Format("Your account is temporary locked.<br>You should wait {0} day(s), {1} hour(s) and {2} minute(s)",
                 days, hours, minutes);
         }
+
+        public static string GenerateRandomPassword(int length = 6)
+        {
+            //int[] dizi = [ 6, 7, 8, 9, 10, 11, 12 ];
+            //length = _random.Next(6, 12); // Random.Shared.Next(6,12);
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            return new string(Enumerable.Repeat(validChars, length)
+                            .Select(x => x[_random.Next(x.Length)]).ToArray());
+        }
+
     }
 }

@@ -30,7 +30,8 @@ namespace ecommerce.api.Data.UserCon
                 NormalizedUserName = "XXX",
                 NormalizedEmail = "XXX@XXX.COM",
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                EmailConfirmed = true
             };
             user.CreateUserId = user.Id;
             user.PasswordHash = CreatePasswordHash(user, "Xxx123.");

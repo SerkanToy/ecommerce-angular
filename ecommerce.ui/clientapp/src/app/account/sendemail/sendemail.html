@@ -1,0 +1,65 @@
+@if(mode)
+{
+<form [formGroup]="form" (ngSubmit)="sendEmail()" autocomplete="off">
+    <div>
+        <div>
+            <h1>
+                @if(mode.includes('resend-confirmation-email'))
+                {
+                Resend confirmation email
+                }
+                @else
+                {
+                Forgot username or passowrd
+                }
+            </h1>
+        </div>
+        <div>
+            <div>
+                <label>Your Email</label>
+                <input formControlName="email" type="text"
+                    [class.is-invalid]="submitted && form.get('email')?.errors" />
+                @if (submitted && form.get('email')?.hasError('required')) {
+                <div class="invalid-feedback">
+                    Email is required
+                </div>
+                } @else if (submitted && form.get('email')?.hasError('pattern')) {
+                <div class="invalid-feedback">
+                    Invalid email address
+                </div>
+                }
+            </div>
+
+            @if (errorMessages.length > 0) {
+            <div class="">
+                <app-validationmessage [erromessage]="errorMessages"></app-validationmessage>
+            </div>
+            }
+
+
+            <div class="">
+                <div class="">
+                    <div class="">
+                        <div class="">
+                            <div class="">
+                                <button class="" type="button" routerLink="/account/login">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <button class="" type="submit">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</form>
+}

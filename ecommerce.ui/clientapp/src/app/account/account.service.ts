@@ -7,6 +7,8 @@ import { AutStatusModel, UserModel } from '../shared/models/account/user_model';
 import { map } from 'rxjs';
 import { ApiResponse } from '../shared/models/apiRespose';
 import { RegisterUserModel } from '../shared/models/account/registeruser_model';
+import { ResetPasswordModel } from '../shared/models/account/resetPassword_m';
+import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmEmail_m';
 
 
 @Injectable({
@@ -57,6 +59,14 @@ export class AccountService {
     return this.http.get(`${environment.apiUrl}account/email-taken?email=${name}`);
   }
 
+  resetPassword(model: ResetPasswordModel) {
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/reset-password`, model);
+  }
+
+  confirmEmail(confirmemail: ConfirmEmailModel)
+  {
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/confirm-email`, confirmemail);
+  }
 
   login(model: LoginModel) {
     return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`, model).pipe(map((user: ApiResponse<UserModel>) => {
@@ -65,6 +75,14 @@ export class AccountService {
         //return user;
       }
     }));
+  }
+
+  resendConfirmationEmail(model: EmailModel){
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/resend-confirmation-email`, model);
+  }
+
+  forgotUsernameOrPassword(model: EmailModel){
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/forgot-username-or-password`, model);    
   }
 
   private setUser(user: ApiResponse<UserModel>) {

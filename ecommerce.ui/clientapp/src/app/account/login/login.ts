@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccountService } from '../account.service';
 import { ValidationMessage } from '../../shared/components/validationmessage/validationmessage';
 
@@ -8,7 +8,8 @@ import { ValidationMessage } from '../../shared/components/validationmessage/val
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    ValidationMessage
+    ValidationMessage,
+    RouterLink
 ],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -18,6 +19,7 @@ export class Login implements OnInit {
   submitted = false;
   errorMessage: string[] = [];
   returnUrl: string | null = null;
+  displayResendConfirmationLink: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
           private router: Router,
@@ -53,8 +55,7 @@ export class Login implements OnInit {
 
   
 
-  login(){    
-    console.log("Tıklandı...");
+  login(){   
     if (this.form.valid) {
       this.accountService.login(this.form.value).subscribe({
         next: _ => {                
@@ -68,7 +69,13 @@ export class Login implements OnInit {
           }        
         },
         error: error => {
-          console.log(error);        
+          if (error.errors) {
+            this.errorMessage = error.errors;
+          } else {
+            if (error && error.title.includes('Confirm your email first')) {
+              this.displayResendConfirmationLink = true;
+            }
+          }       
         }
       });
     }

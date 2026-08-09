@@ -52,6 +52,11 @@ export class Register implements OnInit {
         next: (response:any) => {
           this.sharedService.showNotification(response.message);
           this.router.navigateByUrl("/");
+          this.router.navigate(['/account/confirm-email'], {
+            queryParams: {
+              email: this.form.get('email')?.value
+            }
+          });
         },
         error: error => {
           if(error.errors)

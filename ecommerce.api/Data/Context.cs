@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ecommerce.api.Data
 {
-    public class Context : IdentityDbContext<UserApp, RoleApp, Guid, IdentityUserClaim<Guid>, UserRoleBridge, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
+    public class Context : IdentityDbContext<UserApp, RoleApp, Guid, IdentityUserClaim<Guid>, UserRoleBridge, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, AppUserToken>
     {
         public Context(DbContextOptions<Context> dbContext) : base(dbContext)
         {
@@ -16,6 +16,7 @@ namespace ecommerce.api.Data
         public DbSet<UserApp> Users { get; set; }
         public DbSet<RoleApp> Roles { get; set; }
         public DbSet<UserRoleBridge> UserRoles { get; set; }
+        public DbSet<AppUserToken> UserTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

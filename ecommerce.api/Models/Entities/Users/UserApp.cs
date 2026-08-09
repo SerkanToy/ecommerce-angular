@@ -18,6 +18,8 @@ namespace ecommerce.api.Models.Entities.Users
         public string FullName => $"{FirstName} {LastName}";
         [NotMapped]
         public ICollection<UserRoleBridge> Roles { get; set; }
+        [NotMapped]
+        public ICollection<AppUserToken> Tokens { get; set; }
         public string? Salt { get; set; }
 
         #region Audit Log

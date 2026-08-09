@@ -1,5 +1,4 @@
-﻿using Azure;
-using ecommerce.api.Data;
+﻿using ecommerce.api.Data;
 using ecommerce.api.Models;
 using ecommerce.api.Models.Entities.Users;
 using ecommerce.api.Models.Services;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
 using System.Text;
 
 namespace ecommerce.api.Extensions
@@ -24,7 +22,8 @@ namespace ecommerce.api.Extensions
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            builder.Services.AddTransient(typeof(ITokenService), typeof(TokenService));
+            //builder.Services.AddTransient(typeof(ITokenService), typeof(TokenService));
+            builder.Services.AddScoped<IServiceUnitOfWork, ServiceUnitOfWork>();
             //builder.Services.AddCors();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>

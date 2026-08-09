@@ -1,6 +1,7 @@
 ﻿using ecommerce.api.Data;
 using ecommerce.api.Models.DTOs;
 using ecommerce.api.Models.Entities.Users;
+using ecommerce.api.Models.Services;
 using ecommerce.api.Models.Services.IServices;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Identity;
@@ -16,14 +17,16 @@ namespace ecommerce.api.Controllers
         private Context _context;
         private UserManager<UserApp> _userManager;
         private SignInManager<UserApp> _signInManager;
-        private ITokenService _tokenService;
+        //private ITokenService _tokenService;
         private IConfiguration _config;
         private HttpContext _httpContext;
+        private IServiceUnitOfWork _serviceUnitOfWork;
 
         protected Context Context => _context ??= HttpContext.RequestServices.GetService<Context>();
         protected UserManager<UserApp> userManager => _userManager ?? HttpContext.RequestServices.GetService(typeof(UserManager<UserApp>)) as UserManager<UserApp>;
+        protected IServiceUnitOfWork serviceUnitOfWork => _serviceUnitOfWork ?? HttpContext.RequestServices.GetService(typeof(IServiceUnitOfWork)) as IServiceUnitOfWork;
         protected SignInManager<UserApp> signInManager => _signInManager ?? HttpContext.RequestServices.GetService(typeof(SignInManager<UserApp>)) as SignInManager<UserApp>;
-        protected ITokenService tokenService => _tokenService ?? HttpContext.RequestServices.GetService(typeof(ITokenService)) as ITokenService;
+        //protected ITokenService tokenService => _tokenService ?? HttpContext.RequestServices.GetService(typeof(ITokenService)) as ITokenService;
         protected IConfiguration configuration => _config ?? HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
         protected HttpContext httpContext => _httpContext ??= HttpContext;
 
@@ -39,7 +42,7 @@ namespace ecommerce.api.Controllers
             return await userManager.Users.AnyAsync(u => u.UserName == username);
         }
 
-        protected async Task<bool> SendConfirmEmailAsync()
+        protected async Task<bool> SendConfirmEmailAsync(UserApp user)
         {
             return true;
         }
@@ -73,7 +76,7 @@ namespace ecommerce.api.Controllers
         protected async Task<UserAppDto> CreateAppUserDtoAsync(UserApp user)
         {
             RemoveJwtCookie();
-            string jwt = await tokenService.CreateJWTAsync(user);
+            string jwt = await serviceUnitOfWork.TokenService.CreateJWTAsync(user);
             SetJWTCookie(jwt);
             var result = await userManager.SetAuthenticationTokenAsync(user, SD.IdentityAppTokenProvider, SD.IdentityAppTokenName, jwt);
 
@@ -104,6 +107,26 @@ namespace ecommerce.api.Controllers
         protected void RemoveJwtCookie()
         {
             httpContext.Response.Cookies.Delete(SD.IdentityAppCookie);
+        }
+
+        protected int TokenExpiresInMinutes()
+        {
+            return int.Parse(configuration["EmailSettings:TokenExpiresInMinutes"]);
+        }
+
+        protected string GetClientUrl()
+        {
+            return configuration["jwt:ClientUrl"]!;
+        }
+
+        protected void Pauseresponse(double sec = 1.3)
+        {
+            var t = Task.Run(async delegate
+            {
+                await Task.Delay(TimeSpan.FromSeconds(sec));
+                return 42;
+            });
+            t.Wait();
         }
     }
 }
