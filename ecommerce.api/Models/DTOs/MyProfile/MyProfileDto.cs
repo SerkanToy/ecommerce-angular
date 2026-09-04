@@ -2,8 +2,9 @@
 {
     public class MyProfileDto
     {
-        public string Name { get; set; }
+        public string Id { get; set; }
+        public string FirstName { get; set; }
+        public string FastName { get; set; }
         public string Email { get; set; }
-
     }
 }

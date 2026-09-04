@@ -22,7 +22,7 @@ namespace ecommerce.api.Controllers
             //var users = userManager.Users.Select(x => new UserDto { LastName = x.LastName, FirstName = x.FirstName, Id = x.Id.ToString(), Email = x.Email }).ToList();
             //UserDto
             var user = await userManager.Users.Where(x => x.Id == User.GetUserId()).
-                Select(s => new MyProfileDto { Name = s.FullName, Email = s.Email }).FirstOrDefaultAsync();
+                Select(s => new MyProfileDto { FirstName = s.FirstName, FastName = s.LastName,  Email = s.Email }).FirstOrDefaultAsync();
             if (user == null) return NotFound(new ApiResponse(statusCode: 404, message: "Kullanıcı Bulunamadı.", data: null));
             return Ok(new ApiResponse(statusCode:200, data: user));
         }

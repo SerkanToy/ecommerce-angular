@@ -9,6 +9,7 @@ import { SharedService } from '../../shared/shared.service';
 import { Router } from '@angular/router';
 import { ApiResponse } from '../../shared/models/apiRespose';
 import { UserModel } from '../../shared/models/account/user_model';
+import { UserProfilModel } from '../../shared/models/profil/profil_model';
 
 @Component({
   selector: 'app-edit-profile',
@@ -22,7 +23,7 @@ import { UserModel } from '../../shared/models/account/user_model';
   styleUrl: './edit-profile.css',
 })
 export class EditProfile implements OnInit {
-  myProfile: UserModel | undefined;
+  myProfile: UserProfilModel | undefined;
   form: FormGroup = new FormGroup({});
   submitted = false;
   editMode = false;
@@ -44,7 +45,7 @@ export class EditProfile implements OnInit {
   initializeForm() {
     if (this.myProfile) {
       this.form = this.formBuilder.group({
-        name: [{ value: `${this.myProfile.name}` , disabled: true }, [Validators.required, Validators.minLength(3), Validators.maxLength(16), Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]],
+        name: [{ value: `${this.myProfile.firstName} ${this.myProfile.lastName}` , disabled: true }, [Validators.required, Validators.minLength(3), Validators.maxLength(16), Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]],
         email: [{ value: this.myProfile.email, disabled: true }, [Validators.required, Validators.pattern('^.+@[^\\.].*\\.[a-z]{2,}$')]],
         currentPassword: [{ value: '', disabled: true }, [Validators.required]]
       })
@@ -91,14 +92,14 @@ export class EditProfile implements OnInit {
 
   private proceedSaving(isEmailChanged: boolean) {
     this.myProfileService.editMyProfile(this.form.value).subscribe({
-      next: (response: ApiResponse<UserModel>) => {
+      next: (response: ApiResponse<UserProfilModel>) => {
         if (isEmailChanged) {
           this.sharedService.showNotification(response);
-          this.accountService.setUser(response);
+          this.myProfileService.setEditUser(response);
           this.router.navigateByUrl('/account/confirm-email?email=' + this.form.controls['email'].value);
         }else {
           this.sharedService.showNotification(response);
-          this.accountService.setUser(response);
+          this.myProfileService.setEditUser(response);
           this.getMyProfile();
           this.cancel();
         }

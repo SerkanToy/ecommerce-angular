@@ -9,6 +9,7 @@ import { ApiResponse } from '../shared/models/apiRespose';
 import { RegisterUserModel } from '../shared/models/account/registeruser_model';
 import { ResetPasswordModel } from '../shared/models/account/resetPassword_m';
 import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmEmail_m';
+import { UserProfilModel } from '../shared/models/profil/profil_model';
 
 
 @Injectable({
@@ -18,6 +19,7 @@ import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmE
 export class AccountService {
   apiUrl = environment.apiUrl;
   $user = signal<ApiResponse<UserModel> | null>(null);
+  
   constructor(private http: HttpClient, private route: Router) {
 
   }
@@ -89,4 +91,6 @@ export class AccountService {
   public setUser(user: ApiResponse<UserModel>) {
     this.$user.set(user);
   }
+
+  
 }
