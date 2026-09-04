@@ -14,6 +14,7 @@ import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmE
 @Injectable({
   providedIn: 'root',
 })
+
 export class AccountService {
   apiUrl = environment.apiUrl;
   $user = signal<ApiResponse<UserModel> | null>(null);
@@ -85,7 +86,7 @@ export class AccountService {
     return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/forgot-username-or-password`, model);    
   }
 
-  private setUser(user: ApiResponse<UserModel>) {
+  public setUser(user: ApiResponse<UserModel>) {
     this.$user.set(user);
   }
 }

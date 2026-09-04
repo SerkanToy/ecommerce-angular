@@ -1,0 +1,55 @@
+@if(accountService.$user(); as user)
+{
+    <div>
+       
+        <nav>
+            <ul>
+                <li>
+                    <button routerLink="/my-profile/edit-profile" (click)="navigate('edit-profile')">
+                        <strong>edit-profile</strong>
+                    </button>
+                </li>
+                <li>
+                    <hr />
+                </li>
+                <li>
+                    <button routerLink="/my-profile/change-password" (click)="navigate('change-password')">
+                        <strong>change-password</strong>
+                    </button>
+                </li>
+                 <li>
+                    <hr />
+                </li>
+                <li>
+                    <button routerLink="/my-profile/delete-account" (click)="navigate('delete-account')">
+                        <strong>delete-account</strong>
+                    </button>
+                </li>
+                 <li>
+                    <hr />
+                </li>
+                <li>
+                    <button routerLink="/my-profile/mfa-setup" (click)="navigate('mfa-setup')">
+                        <strong>mfa-setup</strong>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <div style="width: 100%;">
+            <div style="min-height: 700px;">
+                @if(page === 'edit-profile'){
+                    <app-edit-profile></app-edit-profile>
+                } @else if(page === 'change-password'){
+                    <app-change-password></app-change-password>
+                } @else if(page === 'delete-account'){
+                    <app-delete-account></app-delete-account>
+                } @else if(page === 'mfa-setup'){
+                    <app-mfa-setup></app-mfa-setup>
+                } @else {
+                    <app-my-profile></app-my-profile>
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -322,7 +322,7 @@ namespace ecommerce.api.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [ActionName("forgot-username-or-password")]
         public async Task<ActionResult<ApiResponse>> ForgotUsernameOrPassword(EmailDto model)
         {
@@ -414,87 +414,7 @@ namespace ecommerce.api.Controllers
 
         }
 
-        private string CreatePasswordHash(string password)
-        {
-            byte[] salt = RandomNumberGenerator.GetBytes(128 / 8);
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: password!,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 100000,
-                numBytesRequested: 256 / 8));
-            return hashed;
-        }
-
-        private async Task<bool> SendForgotUsernameOrPasswordEmail(UserApp user)
-        {
-            var userToken = await Context.UserTokens.FirstOrDefaultAsync(x => x.UserId == user.Id && x.Name == SD.FUP);
-            var tokenExpiresInMinutes = TokenExpiresInMinutes();
-
-            if(userToken == null)
-            {
-                var userTokenAdd = new AppUserToken
-                {
-                    UserId = user.Id,
-                    Name = SD.FUP,
-                    Value = SD.GenerateRandomPassword(),
-                    Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes),
-                    LoginProvider = string.Empty
-                };
-                Context.UserTokens.Add(userTokenAdd);
-                userToken = userTokenAdd;
-            }
-            else
-            {
-                userToken.Value = SD.GenerateRandomPassword();
-                userToken.Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes);
-            }
-
-            await Context.SaveChangesAsync();
-
-            using StreamReader streamReader = System.IO.File.OpenText("EmailTemplates/forgot_username_password.html");
-            string htmlBody = streamReader.ReadToEnd();
-            string messageBody = string.Format(htmlBody, GetClientUrl(), user.FirstName + " " + user.LastName, user.UserName, user.Email, userToken.Value, tokenExpiresInMinutes);
-            var emailSent = new EmailSendDto(user.Email, "Forgot Username or Password", messageBody);
-            
-            return await serviceUnitOfWork.EmailService.SendEmailAsync(emailSent);
-        }
-
-        private async Task<bool> SendConfirmEmailAsync(UserApp user)
-        {
-            var userToken = await Context.UserTokens.Where(x => x.UserId == user.Id && x.Name == SD.EC).FirstOrDefaultAsync();
-            var tokenExpiresInMinutes = TokenExpiresInMinutes();
-
-            if(userToken == null) 
-            {
-                var userTokenAdd = new AppUserToken
-                {
-                    UserId = user.Id,
-                    Name = SD.EC,
-                    Value = SD.GenerateRandomPassword(),
-                    Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes),
-                    LoginProvider = string.Empty
-                };
-                Context.UserTokens.Add(userTokenAdd);
-                userToken = userTokenAdd;
-            }
-            else
-            {
-                userToken.Value = SD.GenerateRandomPassword();
-                userToken.Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes);
-            }
-
-            await Context.SaveChangesAsync();
-
-            using StreamReader streamReader = System.IO.File.OpenText("EmailTemplates/confirm_email.html");
-            string htmlBody = streamReader.ReadToEnd();
-
-            string messageBody = string.Format(htmlBody, GetClientUrl(), user.FirstName + " " + user.LastName, user.UserName, user.Email,
-                userToken.Value, tokenExpiresInMinutes);
-            var emailSend = new EmailSendDto(user.Email, "Verify your email address", messageBody);
-
-            return await serviceUnitOfWork.EmailService.SendEmailAsync(emailSend);
-        }
+        
 
     }
 }

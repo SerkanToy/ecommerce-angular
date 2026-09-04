@@ -8,6 +8,7 @@
 
         public const string NameRegex = "^[a-zA-ZçÇğĞıİöÖşŞüÜ]*$";
         public const string EmailRegex = "^.+@[^\\.].*\\.[a-z]{2,}$";
+        public const string UserNameRegex = "^[a-zA-Z][a-zA-Z0-9]*$";
 
         // Application rules
         public const int RequiredPasswordLength = 6;
@@ -39,6 +40,8 @@
         // Naming
         public const string EC = "ec";
         public const string FUP = "fup";
+
+
 
         public static string AccountLockedMessage(DateTime endDate)
         {

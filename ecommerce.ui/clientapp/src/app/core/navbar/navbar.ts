@@ -17,7 +17,7 @@ export class Navbar {
   collapsed = false;
 
   constructor(public accountService: AccountService){
-
+    console.log(accountService.$user()?.data.email + " is logged in");
   }
 
   toggleCollapsed() {

@@ -1,7 +1,8 @@
 export interface UserModel {
-    name: string
     jwt: string
-    mfaToken: string
+    name: string
+    mfaToken:string
+    email:string
 }
 
 export interface AutStatusModel {

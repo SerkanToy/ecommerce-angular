@@ -5,5 +5,6 @@
         public string Name { get; set; }
         public string Jwt { get; set; }
         public string MfaToken { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -1,0 +1,12 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ecommerce.api.Models.DTOs.MyProfile
+{
+    public class ChangePasswordDto: EditProfileBaseDto
+    {
+        [Required]
+        [StringLength(15, MinimumLength = 6, ErrorMessage = "New password must be at least {2}, and maximum {1} characters")]
+        public string NewPassword { get; set; }
+
+    }
+}
