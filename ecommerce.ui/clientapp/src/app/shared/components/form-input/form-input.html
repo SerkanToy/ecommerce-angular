@@ -1,29 +1,25 @@
 @if(type && label)
 {
-<div>
-    <div>
-        <label for="{{label}}"></label>
-        <div>
-            <input [formControl]="control"
-                [type]="type == 'password' && !displayPassword ? 'password': (type === 'password' && displayPassword ? 'text':type)"
-                class="" [class.is-invalid]="submitted && control.invalid" />
-            @if (type === 'password') {
-            <span class="input-group-text pointer" (click)="togglePasswordDisplay()">
-                <i class="bi" [ngClass]="displayPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
-            </span>
-            }
-        </div>
-        @if(submitted && control.hasError('required')){
+    <input [formControl]="control" placeholder={{label}}
+        [type]="type == 'password' && !displayPassword ? 'password': (type === 'password' && displayPassword ? 'text':type)"
+        class="w-full border mt-1 bg-indigo-500/5 mb-2 border-gray-500/10 outline-none rounded py-2.5 px-3"
+        [class.is-invalid]="submitted && control.invalid" />
+    @if (type === 'password') {
+        <span (click)="togglePasswordDisplay()">
+            <i class="bi" [ngClass]="displayPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+        </span>
+    }
+    @if(submitted && control.hasError('required')){
         <div>
             {{label}} is required
         </div>
-        } @else if(submitted && (control.hasError('minlength') || control.hasError('maxlength'))){
+    } @else if(submitted && (control.hasError('minlength') || control.hasError('maxlength'))){
         <div>
             {{label}} must be at least
             {{minLength}}, and maximum
             {{maxLength}} characters
         </div>
-        }@else if(submitted && control.hasError('notMatching')){
+    }@else if(submitted && control.hasError('notMatching')){
         <div>
             @if(invalidMessage)
             {
@@ -32,7 +28,7 @@
             {{label}} does not match the password
             }
         </div>
-        }@else if (submitted && control.hasError('pattern')){
+    }@else if (submitted && control.hasError('pattern')){
         <div class="text-danger">
             @if (invalidMessage) {
             {{invalidMessage}}
@@ -40,7 +36,5 @@
             Invalid {{label}}
             }
         </div>
-        }
-    </div>
-</div>
+    }
 }
