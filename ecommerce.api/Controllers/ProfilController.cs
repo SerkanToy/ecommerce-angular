@@ -22,7 +22,7 @@ namespace ecommerce.api.Controllers
             //var users = userManager.Users.Select(x => new UserDto { LastName = x.LastName, FirstName = x.FirstName, Id = x.Id.ToString(), Email = x.Email }).ToList();
             //UserDto
             var user = await userManager.Users.Where(x => x.Id == User.GetUserId()).
-                Select(s => new MyProfileDto { FirstName = s.FirstName, FastName = s.LastName,  Email = s.Email }).FirstOrDefaultAsync();
+                Select(s => new MyProfileDto { FirstName = s.FirstName, LastName = s.LastName,  Email = s.Email }).FirstOrDefaultAsync();
             if (user == null) return NotFound(new ApiResponse(statusCode: 404, message: "Kullanıcı Bulunamadı.", data: null));
             return Ok(new ApiResponse(statusCode:200, data: user));
         }
@@ -48,15 +48,15 @@ namespace ecommerce.api.Controllers
                     displayByDefault: true));
             }
 
-            if(!user.UserName!.Equals(model.Email.ToLower()) && await CheckEmailExistsAsync(model.Name))
+            if(!user.UserName!.Equals(model.Email.ToLower()) && await CheckEmailExistsAsync(model.Email))
             {
                 return BadRequest(new ApiResponse(statusCode: 400,
                     message: $"An account has been registered with '{model.Email}'. Please try using another name (username)",
                     displayByDefault: true));
             }
 
-            user.FirstName = model.Name;
-            user.LastName = model.Name;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
 
             if(isEmailChaned)
             {

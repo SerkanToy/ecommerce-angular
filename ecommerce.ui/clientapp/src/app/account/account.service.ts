@@ -88,7 +88,7 @@ export class AccountService {
     return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/forgot-username-or-password`, model);    
   }
 
-  public setUser(user: ApiResponse<UserModel>) {
+  setUser(user: ApiResponse<UserModel> | null) {
     this.$user.set(user);
   }
 

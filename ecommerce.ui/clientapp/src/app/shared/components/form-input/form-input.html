@@ -2,8 +2,8 @@
 {
     <input [formControl]="control" placeholder={{label}}
         [type]="type == 'password' && !displayPassword ? 'password': (type === 'password' && displayPassword ? 'text':type)"
-        class="w-full border mt-1 bg-indigo-500/5 mb-2 border-gray-500/10 outline-none rounded py-2.5 px-3"
-        [class.is-invalid]="submitted && control.invalid" />
+        class="w-full border mt-1 bg-indigo-500/5 mb-2 border-gray-500/10 outline-none rounded py-2.5 px-3 h-full"
+        />
     @if (type === 'password') {
         <span (click)="togglePasswordDisplay()">
             <i class="bi" [ngClass]="displayPassword ? 'bi-eye-slash' : 'bi-eye'"></i>

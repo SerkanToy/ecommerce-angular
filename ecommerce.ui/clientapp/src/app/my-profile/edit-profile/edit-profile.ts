@@ -45,7 +45,8 @@ export class EditProfile implements OnInit {
   initializeForm() {
     if (this.myProfile) {
       this.form = this.formBuilder.group({
-        name: [{ value: `${this.myProfile.firstName} ${this.myProfile.lastName}` , disabled: true }, [Validators.required, Validators.minLength(3), Validators.maxLength(16), Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]],
+        firstName:[{ value: `${this.myProfile.firstName}` , disabled: true }, [Validators.required, Validators.minLength(3), Validators.maxLength(16), Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]],
+        lastName: [{ value: `${this.myProfile.lastName}` , disabled: true }, [Validators.required, Validators.minLength(3), Validators.maxLength(16), Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]],
         email: [{ value: this.myProfile.email, disabled: true }, [Validators.required, Validators.pattern('^.+@[^\\.].*\\.[a-z]{2,}$')]],
         currentPassword: [{ value: '', disabled: true }, [Validators.required]]
       })
@@ -54,7 +55,8 @@ export class EditProfile implements OnInit {
 
   edit() {
     this.editMode = true;
-    this.form.controls['name'].enable();
+    this.form.controls['firstName'].enable();
+    this.form.controls['lastName'].enable();
     this.form.controls['email'].enable();
     this.form.controls['currentPassword'].enable();
   }
@@ -95,11 +97,11 @@ export class EditProfile implements OnInit {
       next: (response: ApiResponse<UserProfilModel>) => {
         if (isEmailChanged) {
           this.sharedService.showNotification(response);
-          this.myProfileService.setEditUser(response);
+          //this.accountService.setUser();
           this.router.navigateByUrl('/account/confirm-email?email=' + this.form.controls['email'].value);
         }else {
           this.sharedService.showNotification(response);
-          this.myProfileService.setEditUser(response);
+          //this.myProfileService.setUser(response);
           this.getMyProfile();
           this.cancel();
         }
