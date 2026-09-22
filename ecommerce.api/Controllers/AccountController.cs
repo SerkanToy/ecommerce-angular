@@ -5,11 +5,9 @@ using ecommerce.api.Models.DTOs;
 using ecommerce.api.Models.Entities.Users;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 
 namespace ecommerce.api.Controllers
 {
@@ -33,8 +31,9 @@ namespace ecommerce.api.Controllers
             if (!user.IsActive)
                 return Unauthorized(new ApiResponse(401, message: SM.T_AccountSuspended, displayByDefault: true));
 
-            if(!user.EmailConfirmed)
-                return Unauthorized(new ApiResponse(401, title:SM.T_ConfirmEmailFirst ,message: SM.T_ConfirmEmailFirst, displayByDefault: true));
+            if (!user.EmailConfirmed)
+                return Unauthorized(new ApiResponse(401, title: SM.T_ConfirmEmailFirst, message: SM.T_ConfirmEmailFirst, displayByDefault: true));
+
 
             var message = await UserPasswordValidationAsync(user, loginDto.Password, true);
 
@@ -43,6 +42,18 @@ namespace ecommerce.api.Controllers
                 RemoveJwtCookie();
                 return Unauthorized(new ApiResponse(401, message: message, displayByDefault: true, isHtmlEnabled: true));
             }
+
+
+            if (user.TwoFactorEnabled)
+            {
+                return Ok(new ApiResponse(
+                            statusCode: 200,
+                            message: "Giriş başarılı",
+                            data: await CreateAppUserDtoAsync(user)
+                        ));
+            }
+
+
             return Ok(new ApiResponse(
                 statusCode: 200,
                 message: "Giriş başarılı",
@@ -75,6 +86,48 @@ namespace ecommerce.api.Controllers
             return Ok(new ApiResponse(
                 statusCode: 200,
                 message: "Giriş başarılı",
+                data: await CreateAppUserDtoAsync(user)
+            ));
+        }
+
+        [HttpPost]
+        [ActionName("mfaverify")]
+        public async Task<ActionResult<UserAppDto>> MfaVerify(MfaVerifyDto dto)
+        {
+            var userName = serviceUnitOfWork.TokenService.GetUserNameFromMfaToken(dto.MfaToken);
+            if(string.IsNullOrEmpty(userName))
+            {
+                RemoveJwtCookie();
+                return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true)); ;
+            }
+            var user = await userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                RemoveJwtCookie();
+                return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true));
+            }
+
+            var userToken = await Context.UserTokens
+                                .Where(x => x.UserId == user.Id && x.LoginProvider == SD.Authenticator && x.Name == SD.MFAS)
+                                .FirstOrDefaultAsync();
+
+            if (userToken == null)
+            {
+                RemoveJwtCookie();
+                return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true));
+            }
+
+            var isValid = serviceUnitOfWork.TokenService.ValideteCode(userToken.Value, dto.Code);
+
+            if(!isValid)
+            {
+                RemoveJwtCookie();
+                return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true));
+            }
+
+            return Ok(new ApiResponse(
+                statusCode: 200,
+                message: "İşlem Başarılı",
                 data: await CreateAppUserDtoAsync(user)
             ));
         }
@@ -153,7 +206,7 @@ namespace ecommerce.api.Controllers
 
             try
             {
-                if(await SendConfirmEmailAsync(user))
+                if (await SendConfirmEmailAsync(user))
                 {
                     return Ok(new ApiResponse(
                         statusCode: 201,
@@ -178,7 +231,7 @@ namespace ecommerce.api.Controllers
                     ));
             }
 
-            
+
         }
 
         [HttpPut]
@@ -187,7 +240,7 @@ namespace ecommerce.api.Controllers
         {
             var user = await userManager.FindByEmailAsync(dto.Email);
 
-            if(user == null)
+            if (user == null)
             {
                 return Unauthorized(
                         new ApiResponse(
@@ -227,9 +280,9 @@ namespace ecommerce.api.Controllers
                 x.UserId == user.Id && x.Name == SD.EC && x.Value == dto.Token
                 );
 
-            if(appUserToken == null || appUserToken.Expires <= DateTime.UtcNow)
+            if (appUserToken == null || appUserToken.Expires <= DateTime.UtcNow)
             {
-                if(appUserToken != null)
+                if (appUserToken != null)
                 {
                     Context.UserTokens.Remove(appUserToken);
                     await Context.SaveChangesAsync();
@@ -264,7 +317,7 @@ namespace ecommerce.api.Controllers
         {
             var user = await userManager.FindByEmailAsync(model.Email);
 
-            if(user == null)
+            if (user == null)
             {
                 Pauseresponse();
                 return Ok(new ApiResponse(
@@ -274,7 +327,7 @@ namespace ecommerce.api.Controllers
                 ));
             }
 
-            if(!user.IsActive)
+            if (!user.IsActive)
             {
                 return Unauthorized(new ApiResponse(
                     statusCode: 401,
@@ -296,7 +349,7 @@ namespace ecommerce.api.Controllers
 
             try
             {
-                if(await SendConfirmEmailAsync(user))
+                if (await SendConfirmEmailAsync(user))
                 {
                     return Ok(new ApiResponse(
                     statusCode: 200,
@@ -311,8 +364,8 @@ namespace ecommerce.api.Controllers
                     displayByDefault: true
                 ));
             }
-            catch (Exception ex) 
-            { 
+            catch (Exception ex)
+            {
                 return BadRequest(new ApiResponse(
                     statusCode: 400,
                     title: SM.T_EmailSentFailed,
@@ -327,7 +380,7 @@ namespace ecommerce.api.Controllers
         public async Task<ActionResult<ApiResponse>> ForgotUsernameOrPassword(EmailDto model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
-            if(user == null)
+            if (user == null)
             {
                 Pauseresponse();
                 return Ok(new ApiResponse(
@@ -343,7 +396,7 @@ namespace ecommerce.api.Controllers
                     displayByDefault: true));
             }
 
-            if(!user.EmailConfirmed)
+            if (!user.EmailConfirmed)
             {
                 return BadRequest(new ApiResponse(400, title: SM.T_ConfirmEmailFirst, message: SM.M_ConfirmEmailFirst,
                    displayByDefault: true));
@@ -351,7 +404,7 @@ namespace ecommerce.api.Controllers
 
             try
             {
-                if(await SendForgotUsernameOrPasswordEmail(user))
+                if (await SendForgotUsernameOrPasswordEmail(user))
                 {
                     return Ok(new ApiResponse(200, title: SM.T_EmailSent, message: SM.M_ForgotUsernamePasswordSent));
                 }
@@ -396,9 +449,9 @@ namespace ecommerce.api.Controllers
             var appUserToken = await Context.UserTokens.FirstOrDefaultAsync(x =>
                                                 x.UserId == user.Id && x.Name == SD.FUP && x.Value == model.Token
                                         );
-            if(appUserToken == null || appUserToken.Expires <= DateTime.UtcNow)
+            if (appUserToken == null || appUserToken.Expires <= DateTime.UtcNow)
             {
-                if(appUserToken != null)
+                if (appUserToken != null)
                 {
                     Context.RemoveRange(appUserToken);
                     await Context.SaveChangesAsync();
@@ -406,15 +459,13 @@ namespace ecommerce.api.Controllers
                 return Unauthorized(new ApiResponse(401, title: SM.T_InvallidToken, message: SM.M_InavlidToken,
                     displayByDefault: true));
             }
-            Context.UserTokens.Remove(appUserToken); 
+            Context.UserTokens.Remove(appUserToken);
             Context.SaveChanges();
             await userManager.RemovePasswordAsync(user);
             await userManager.AddPasswordAsync(user, model.NewPassword);
             return Ok(new ApiResponse(200, title: SM.T_PasswordRest, message: SM.M_PasswordRest));
 
         }
-
-        
 
     }
 }

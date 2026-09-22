@@ -40,6 +40,14 @@
         // Naming
         public const string EC = "ec";
         public const string FUP = "fup";
+        public const string Authenticator = "authenticator";
+        public const string MFAS = "mfas";
+
+        // Application Claims
+        public const string UserId = "uid";
+        public const string Name = "name";
+        public const string UserName = "UserName";
+        public const string Email = "eml";
 
 
 

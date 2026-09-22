@@ -1,10 +1,8 @@
 ﻿using ecommerce.api.Extensions;
 using ecommerce.api.Models;
-using ecommerce.api.Models.DTOs;
 using ecommerce.api.Models.DTOs.MyProfile;
 using ecommerce.utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -138,5 +136,68 @@ namespace ecommerce.api.Controllers
             RemoveJwtCookie();
             return Ok(new ApiResponse(200, message: "Your user account has been permanently deleted.", displayByDefault: true));
         }
+
+        [HttpGet]
+        [ActionName("mfa-status")]
+        public async Task<ActionResult<ApiResponse>> MfaStatus()
+        {
+            var isEnable = await userManager.Users.Where(x => x.Id == User.GetUserId()).Select(x => x.TwoFactorEnabled).FirstOrDefaultAsync();
+            return Ok(new ApiResponse(200, data: isEnable));
+        }
+
+        [HttpGet]
+        [ActionName("qr-code")]
+        public ActionResult<ApiResponse> GetQrCode()
+        {
+            return Ok(new ApiResponse(
+                statusCode:200,
+                message: "İşlem Başarılı.",
+                data: serviceUnitOfWork.TokenService.GenerateQrCode(User.GetUserEmail())
+                ));
+        }
+
+        [HttpPut]
+        [ActionName("mfa-enable")]
+        public async Task<ActionResult<ApiResponse>> MfaEnable(MfaEnableDto mfa)
+        {
+            var user = await userManager.FindByNameAsync(User.GetUserName());
+            if (user == null) return NotFound();
+
+            var message = await UserPasswordValidationAsync(user,mfa.CurrentPassword,false);
+
+            if(!string.IsNullOrEmpty(message))
+            {
+                return Unauthorized(new ApiResponse(401,message:message,displayByDefault:true,isHtmlEnabled:true));
+            }
+
+            var result = await userManager.SetTwoFactorEnabledAsync(user,true);
+
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+
+            return Ok(new ApiResponse(200,message:"Multi-Factor authentication enabled"));
+        }
+
+        [HttpPut]
+        [ActionName("mfa-disable")]
+        public async Task<ActionResult<ApiResponse>> MfaDisable(EditMyProfileDto model)
+        {
+            var user = await userManager.FindByNameAsync(User.GetUserName());
+            if (user == null) return NotFound();
+
+            var message = await UserPasswordValidationAsync(user,model.CurrentPassword,false);
+            if(!string.IsNullOrEmpty(message))
+            {
+                return Unauthorized(new ApiResponse(401,message:message,displayByDefault:true,isHtmlEnabled:true));
+            }
+
+            var result = await userManager.SetTwoFactorEnabledAsync(user, true);
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+
+            result = await userManager.RemoveAuthenticationTokenAsync(user,SD.Authenticator,SD.MFAS);
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+
+            return Ok(new ApiResponse(200,message:"Multi-Factor authentication disable"));
+        }
+
     }
 }

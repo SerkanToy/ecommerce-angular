@@ -10,6 +10,7 @@ import { RegisterUserModel } from '../shared/models/account/registeruser_model';
 import { ResetPasswordModel } from '../shared/models/account/resetPassword_m';
 import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmEmail_m';
 import { UserProfilModel } from '../shared/models/profil/profil_model';
+import { MfaVerifyModel } from '../shared/models/account/mfaVerify_model';
 
 
 @Injectable({
@@ -74,11 +75,31 @@ export class AccountService {
   login(model: LoginModel) {
     return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`, model).pipe(map((user: ApiResponse<UserModel>) => {
       if (user) {
-        this.setUser(user);
+        if(user && user.data.jwt)
+        {
+          this.setUser(user);
+          return '';
+        }else{
+          return user.data.mfaToken
+        }
+        
         //return user;
       }
     }));
   }
+
+  mfaVerify(model:MfaVerifyModel){
+    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`,model)
+                    .pipe(
+                      map((user:ApiResponse<UserModel>) => {
+                        if(user && user.data.jwt)
+                        {
+                          this.setUser(user);
+                        }
+                      })
+                    );
+  }
+
 
   resendConfirmationEmail(model: EmailModel){
     return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/resend-confirmation-email`, model);

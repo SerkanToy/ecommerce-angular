@@ -58,16 +58,23 @@ export class Login implements OnInit {
   login(){   
     if (this.form.valid) {
       this.accountService.login(this.form.value).subscribe({
-        next: _ => {                
-          if(this.returnUrl)
-          {                
-            this.router.navigateByUrl(this.returnUrl);          
+        next: (mfaToken:string | undefined) => {   
+          if(mfaToken === '')
+          {
+            if(this.returnUrl)
+            {                
+              this.router.navigateByUrl(this.returnUrl);          
+            }
+            else
+            {        
+              this.router.navigateByUrl("/");
+            }     
           }
           else
-          {        
-            this.router.navigateByUrl("/");
-          }        
-        },
+          {
+            this.router.navigate(["/account/mfa-verify"],{queryParams:{ mfaToken }});
+          }             
+        },        
         error: error => {
           if (error.errors) {
             this.errorMessage = error.errors;
@@ -81,4 +88,6 @@ export class Login implements OnInit {
     }
     //this.button.set(true);
   }
+
+
 }

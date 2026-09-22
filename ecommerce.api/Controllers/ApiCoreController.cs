@@ -112,6 +112,17 @@ namespace ecommerce.api.Controllers
             SetJWTCookie(jwt);
             //var result = await userManager.SetAuthenticationTokenAsync(user, SD.IdentityAppTokenProvider, SD.IdentityAppTokenName, jwt);
 
+            if(user.TwoFactorEnabled)
+            {
+                return new UserAppDto
+                {
+                    Name = $"{user.FirstName} {user.LastName}",
+                    Jwt = jwt,
+                    MfaToken = await serviceUnitOfWork.TokenService.CreateMfaToken(user.UserName),
+                    Email = user.Email,
+                };
+            }
+
             return new UserAppDto
             {
                 Name = $"{user.FirstName} {user.LastName}",
