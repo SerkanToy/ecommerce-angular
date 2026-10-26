@@ -1,25 +1,21 @@
-@if(completed == true)
-{
-<div>
+<div class="card-header">
     MFA Setup
-    @if(mfaEnabled)
-    {
-    (<span>Enabled</span>)
-    }@else{
-    (<span>Disabled</span>)
+    @if (mfaEnabled) {
+    (<span class="text-success">Enabled</span>)
+    } @else {
+    (<span class="text-primary">Disabled</span>)
     }
 </div>
-<div>
-    <label>
-        @if(mfaEnabled)
-        {
+<div class="card-body">
+    <label class="mb-3">
+        @if(mfaEnabled) {
         Disable your multi-factor authentication.
         } @else{
         Enable your multi-factor authentication by scanning the QR code below.
         }
     </label>
     <form [formGroup]="form" (ngSubmit)="save()" autocomplete="off">
-        @if (mfaEnabled === false && qrCode) {
+        @if (mfaEnabled == true && qrCode) {
         <div class="mb-2">
             <qrcode [qrdata]="qrCode.uri" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
         </div>
@@ -27,15 +23,26 @@
         <div class="d-flex justify-content-left mb-2">
             <app-code-input (fullCode)="fullCodeReceive($event)"></app-code-input>
         </div>
+
+         <app-form-input [formControl]="$any(form.controls['currentPassword'])" [type]="'text'" [label]="'Parola'"
+                    [submitted]="submitted" [minLength]="3" [maxLength]="15"
+                    [invalidMessage]="'Boş Olamaz'"></app-form-input>
+
+        }
+        @else {
+            <div class="row">
+                <div class="col-12 col-lg-6 pb-3">
+                    <app-form-input [formControl]="$any(form.controls['currentPassword'])" [type]="'password'"
+                        [label]="'Current Password'" [submitted]="submitted"></app-form-input>
+                </div>
+            </div>
         }
 
-        <app-form-input [formControl]="$any(form.controls['currentPassword'])" [type]="'password'"
-            [label]="'Current Password'" [submitted]="submitted"></app-form-input>
 
         @if (errorMessages.length > 0) {
         <div class="row">
             <div class="col">
-                <app-validation-message [errorMessages]="errorMessages"></app-validation-message>
+                <app-validationmessage [erromessage]="errorMessages"></app-validationmessage>
             </div>
         </div>
         }
@@ -45,8 +52,8 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="d-grid">
-                            <button class="btn btn-block btn-primary" type="submit" [disabled]="form.invalid">
-                                @if( mfaEnabled == false) {
+                            <button class="bg-amber-500 cursor-pointer" type="submit" [disabled]="form.invalid">
+                                @if(mfaEnabled) {
                                 Enable MFA
                                 } @else {
                                 Disable MFA
@@ -61,4 +68,6 @@
     </form>
 </div>
 
-}
+
+
+<!-- <app-validationmessage [erromessage]="errorMessages"></app-validationmessage> -->

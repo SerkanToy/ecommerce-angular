@@ -8,7 +8,7 @@ namespace ecommerce.api.Models.Services.IServices
         Task<string> CreateJWTAsync(UserApp user);
         Task<string> CreateMfaToken(string username);
         string GetUserNameFromMfaToken(string mfaToken);
-        bool ValideteCode(string secretKey, string code);
+        bool ValidateCode(string secretKey, string code);
         QrCodeDto GenerateQrCode(string userName);
     }
 }

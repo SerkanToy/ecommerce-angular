@@ -11,6 +11,7 @@ import { ResetPasswordModel } from '../shared/models/account/resetPassword_m';
 import { ConfirmEmailModel, EmailModel } from '../shared/models/account/confirmEmail_m';
 import { UserProfilModel } from '../shared/models/profil/profil_model';
 import { MfaVerifyModel } from '../shared/models/account/mfaVerify_model';
+import { MfaDisableModel } from '../shared/models/account/mfa_disable_dto';
 
 
 @Injectable({
@@ -73,7 +74,7 @@ export class AccountService {
   }
 
   login(model: LoginModel) {
-    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`, model).pipe(map((user: ApiResponse<UserModel>) => {
+    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`, model).pipe(map((user: any) => {
       if (user) {
         if(user && user.data.jwt)
         {
@@ -89,7 +90,8 @@ export class AccountService {
   }
 
   mfaVerify(model:MfaVerifyModel){
-    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/login`,model)
+
+    return this.http.post<ApiResponse<UserModel>>(`${environment.apiUrl}account/mfaverify`,model)
                     .pipe(
                       map((user:ApiResponse<UserModel>) => {
                         if(user && user.data.jwt)
@@ -107,6 +109,14 @@ export class AccountService {
 
   forgotUsernameOrPassword(model: EmailModel){
     return this.http.put<ApiResponse<any>>(`${environment.apiUrl}account/forgot-username-or-password`, model);    
+  }
+
+   mfaDisableRequest(model: EmailModel) {
+    return this.http.post<ApiResponse<any>>(this.apiUrl + 'account/mfa-disable-request', model);
+  }
+
+  mfaDisable(model: MfaDisableModel) {
+    return this.http.put<ApiResponse<any>>(this.apiUrl + 'account/mfa-disable', model);
   }
 
   setUser(user: ApiResponse<UserModel> | null) {

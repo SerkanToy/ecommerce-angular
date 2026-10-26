@@ -58,7 +58,7 @@ export class Login implements OnInit {
   login(){   
     if (this.form.valid) {
       this.accountService.login(this.form.value).subscribe({
-        next: (mfaToken:string | undefined) => {   
+        next: (mfaToken:string) => {   
           if(mfaToken === '')
           {
             if(this.returnUrl)

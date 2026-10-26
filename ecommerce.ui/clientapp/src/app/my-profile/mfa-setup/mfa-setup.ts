@@ -6,10 +6,9 @@ import { ValidationMessage } from '../../shared/components/validationmessage/val
 import { QRCodeComponent } from 'angularx-qrcode';
 import { CodeInput } from '../../shared/components/code-input/code-input/code-input';
 import { MfaEnableModel, QrCodeModel } from '../../shared/models/profil/mfa_model';
-import { AccountService } from '../../account/account.service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../shared/shared.service';
 import { MyProfileService } from '../my-profile.service';
+import { EditProfileBaseModel } from '../../shared/models/profil/editprofilebasemodel';
 
 @Component({
   selector: 'app-mfa-setup',
@@ -44,8 +43,8 @@ export class MfaSetup implements OnInit {
   initializeForm() {
     this.submitted = false;
     this.errorMessages = [];
-
-    if (this.mfaEnabled == false) {
+   
+    if (this.mfaEnabled == true) {
       this.form = this.formBuilder.group({
         code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
         currentPassword: ['', Validators.required]
@@ -55,6 +54,7 @@ export class MfaSetup implements OnInit {
         currentPassword: ['', [Validators.required]]
       });
     }
+
     this.form.markAsPristine();
   }
 
@@ -65,10 +65,10 @@ export class MfaSetup implements OnInit {
   save() {
     this.submitted = true;
     this.errorMessages = [];
-
-    if (this.form.valid) {
-      if (!this.mfaEnabled && this.qrCode && this.form) {
-        const model: any = {
+    console.log("******************");
+    if (this.form) {
+      if (!this.mfaEnabled && this.qrCode) {
+        const model: MfaEnableModel = {
           currentPassword: this.form.controls['currentPassword'].value,
           secret: this.qrCode.secret,
           code: this.form.controls['code'].value
@@ -85,7 +85,12 @@ export class MfaSetup implements OnInit {
           }
         });
       } else {
-        this.myProfileService.mfaDisable(this.form.value).subscribe({
+
+        const model: EditProfileBaseModel = {
+          currentPassword: this.form.controls['currentPassword'].value
+        };
+
+        this.myProfileService.mfaDisable(model).subscribe({
           next: response => {
             this.sharedService.showNotification(response);
             this.getStatus();
@@ -99,14 +104,16 @@ export class MfaSetup implements OnInit {
     }
   }
 
+  // #region Private Methods
   private getStatus() {
     this.myProfileService.mfaStatus().subscribe({
       next: (response: any) => {
-        this.mfaEnabled = response.isEnabled;
-        if (this.mfaEnabled == false) {
+        this.mfaEnabled = response.data;
+        if (this.mfaEnabled) {
           this.myProfileService.getQrCode().subscribe({
-            next: qrCode => {
-              this.qrCode = qrCode;
+            next: response => {
+              console.log(response)
+              this.qrCode = response.data;
               this.initializeForm();
               this.completed = true;
             }
@@ -118,5 +125,6 @@ export class MfaSetup implements OnInit {
       }
     })
   }
+  // #endregion
 
 }

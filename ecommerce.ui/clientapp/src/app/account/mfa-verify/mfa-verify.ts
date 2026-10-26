@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
 import { AccountService } from '../account.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MfaVerifyModel } from '../../shared/models/account/mfaVerify_model';
+import { CommonModule } from '@angular/common';
+import { CodeInput } from '../../shared/components/code-input/code-input/code-input';
 
 @Component({
   selector: 'app-mfa-verify',
-  imports: [],
+  imports: [
+    CommonModule,
+    CodeInput,
+    RouterLink
+  ],
   templateUrl: './mfa-verify.html',
   styleUrl: './mfa-verify.css',
 })

@@ -19,6 +19,7 @@ namespace ecommerce.api.Models.Services
         {
             this.configuration = configuration;
             symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]!));
+            _mfaKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["MFA:Key"]!));
         }
         public async Task<string> CreateJWTAsync(UserApp user)
         {
@@ -76,13 +77,14 @@ namespace ecommerce.api.Models.Services
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = _mfaKey,
                     ValidateIssuer = true,
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidIssuer = configuration["MFA:Issuer"],
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = true
                 },out SecurityToken validatedToken);
 
                 var token = (JwtSecurityToken)validatedToken;
-                return token.Claims.First(x => x.Type == SD.UserName)?.Value;
+                return token.Claims.First(x => x.Type == SD.UserName)!.Value;
             }
             catch (Exception e) 
             { 
@@ -90,17 +92,17 @@ namespace ecommerce.api.Models.Services
             }            
         }
 
-        public bool ValideteCode(string secretKey, string code)
+        public bool ValidateCode(string secretKey, string code)
         {
             var totp = new Totp(Base32Encoding.ToBytes(secretKey));
-            return totp.VerifyTotp(code,out _, new VerificationWindow(1,1));
+            return totp.VerifyTotp(code, out _, new VerificationWindow(1, 1));
         }
 
         public QrCodeDto GenerateQrCode(string email) 
         {
             var key = KeyGeneration.GenerateRandomKey(10);
             string secret = Base32Encoding.ToString(key);
-            string issuer = configuration["MFA:Issuer"];
+            string issuer = configuration["MFA:Issuer"]!;
             string uri = $"otpauth://totp/{issuer}:{email}?secret={secret}&issuer={issuer}&digits=6";
             return new QrCodeDto(secret, uri); 
         }

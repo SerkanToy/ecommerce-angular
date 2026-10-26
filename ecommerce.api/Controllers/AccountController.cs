@@ -1,4 +1,5 @@
-﻿using ecommerce.api.Data;
+﻿using Azure.Core;
+using ecommerce.api.Data;
 using ecommerce.api.Extensions;
 using ecommerce.api.Models;
 using ecommerce.api.Models.DTOs;
@@ -49,7 +50,7 @@ namespace ecommerce.api.Controllers
                 return Ok(new ApiResponse(
                             statusCode: 200,
                             message: "Giriş başarılı",
-                            data: await CreateAppUserDtoAsync(user)
+                            data: await CreateAppUserDtoAsync(user,adverb:false)
                         ));
             }
 
@@ -107,6 +108,10 @@ namespace ecommerce.api.Controllers
                 return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true));
             }
 
+            //var qr = serviceUnitOfWork.TokenService.GenerateQrCode(User.GetUserEmail());
+
+            //bool yes = await userManager.VerifyUserTokenAsync(user, SD.Authenticator, SD.MFAS, qr.Secret);
+
             var userToken = await Context.UserTokens
                                 .Where(x => x.UserId == user.Id && x.LoginProvider == SD.Authenticator && x.Name == SD.MFAS)
                                 .FirstOrDefaultAsync();
@@ -117,7 +122,7 @@ namespace ecommerce.api.Controllers
                 return Unauthorized(new ApiResponse(401, message: "Invalid code", displayByDefault: true));
             }
 
-            var isValid = serviceUnitOfWork.TokenService.ValideteCode(userToken.Value, dto.Code);
+            var isValid = serviceUnitOfWork.TokenService.ValidateCode(userToken.Value!, dto.Code);
 
             if(!isValid)
             {
@@ -319,7 +324,7 @@ namespace ecommerce.api.Controllers
 
             if (user == null)
             {
-                Pauseresponse();
+                PauseResponse();
                 return Ok(new ApiResponse(
                     statusCode: 200,
                     title: SM.T_EmailSent,
@@ -382,7 +387,7 @@ namespace ecommerce.api.Controllers
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                Pauseresponse();
+                PauseResponse();
                 return Ok(new ApiResponse(
                     statusCode: 200,
                     title: SM.T_EmailSent,
@@ -467,5 +472,122 @@ namespace ecommerce.api.Controllers
 
         }
 
+
+        [HttpPost("mfa-disable-request")]
+        public async Task<ActionResult<ApiResponse>> MfaDisableRequest(EmailDto emailDto)
+        {
+            var user = await userManager.FindByEmailAsync(emailDto.Email);
+            if (user == null)
+            {
+                PauseResponse();
+                return Ok(new ApiResponse(200, title:SM.T_EmailSent, message:SM.M_MfaDisableEmailSent));
+            }
+
+            if(!user.IsActive)
+            {
+                return Unauthorized(new ApiResponse(401, title:SM.T_AccountSuspended, message:SM.M_AccountSuspended, displayByDefault:true));
+            }
+
+            if(!user.EmailConfirmed)
+            {
+                return BadRequest(new ApiResponse(400, title:SM.T_ConfirmEmailFirst, message:SM.M_ConfirmEmailFirst, displayByDefault:true));
+            }
+
+            try
+            {
+                if(await SendConfirmEmailAsync(user))
+                {
+                    return Ok(new ApiResponse(200, title:SM.T_EmailSent, message:SM.M_EmailSentFailed));
+                }
+                return BadRequest(new ApiResponse(400, title:SM.T_EmailSentFailed,message:SM.M_EmailSentFailed,displayByDefault:true));
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(new ApiResponse(400,title:SM.T_EmailSentFailed,message:SM.M_EmailSentFailed,displayByDefault:true));
+            }
+        }
+
+        [HttpPut("mfa-disable")]
+        public async Task<ActionResult<ApiResponse>> MfaDisable(MfaDisableDto model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if(user == null)
+            {
+                return Unauthorized(new ApiResponse(401,title:SM.T_InvallidToken,message:SM.M_InavlidToken,displayByDefault:true));
+            }
+            if(!user.IsActive)
+            {
+                return Unauthorized(new ApiResponse(401,title:SM.T_AccountSuspended,message:SM.M_AccountSuspended,displayByDefault:true));
+            }
+            if(!user.EmailConfirmed)
+            {
+                return BadRequest(new ApiResponse(400,title:SM.T_ConfirmEmailFirst,message:SM.M_ConfirmEmailFirst,displayByDefault:true));
+            }
+
+            var appUserToken = await Context.UserTokens
+                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.Name == SD.MFASDisable && x.Value == model.Token);
+
+            if(appUserToken == null || appUserToken.Expires <= DateTime.UtcNow)
+            {
+                if(appUserToken != null)
+                {
+                    Context.Remove(appUserToken);
+                    await Context.SaveChangesAsync();
+                }
+                return Unauthorized(new ApiResponse(401,title:SM.T_InvallidToken, message:SM.M_InavlidToken,displayByDefault:true));
+            }
+
+            Context.UserTokens.Remove(appUserToken);
+            var result = await userManager.SetTwoFactorEnabledAsync(user,false);
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+
+            result = await userManager.RemoveAuthenticationTokenAsync(user,SD.Authenticator, SD.MFAS);
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+            return Ok(new ApiResponse(200,message: "Multi-factor authentication disabled."));
+        }
+
+        
+        private async Task<bool> SendMfaDisableemail(UserApp user)
+        {
+            var userToken = await Context.UserTokens
+                    .FirstOrDefaultAsync(x => x.UserId == user.Id && x.Name == SD.MFASDisable);
+
+            var tokenExpiresInMinutes = TokenExpiresInMinutes();
+
+            if(userToken == null)
+            {
+                var userTokenToAdd = new AppUserToken
+                {
+                    UserId = user.Id,
+                    Name = SD.MFASDisable,
+                    Value = SD.GenerateRandomPassword(),
+                    Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes),
+                    LoginProvider = string.Empty
+                };
+
+                Context.UserTokens.Add(userTokenToAdd);
+                userToken = userTokenToAdd;
+            }
+            else
+            {
+                userToken.Value = SD.GenerateRandomPassword();
+                userToken.Expires = DateTime.UtcNow.AddMinutes(tokenExpiresInMinutes);
+            }
+
+            using StreamReader streamReader = System.IO.File.OpenText("EmailTemplates/mfa_disable.html");
+            string htmlBody = streamReader.ReadToEnd();
+
+            string messageBody = string.Format(htmlBody,GetClientUrl(),$"{user.FirstName} {user.LastName}",user.UserName,user.Email,userToken.Value,tokenExpiresInMinutes);
+            var emailSend = new EmailSendDto(user.Email, "MFA Disable",messageBody);
+
+            if(await emailService.SendEmailAsync(emailSend))
+            {
+                await Context.SaveChangesAsync();
+                return true;
+            }
+
+
+            return false;
+        }
     }
 }

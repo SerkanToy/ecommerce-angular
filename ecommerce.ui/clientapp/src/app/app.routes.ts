@@ -3,9 +3,7 @@ import { Home } from './home/home';
 import { Notfound } from './shared/components/errors/notfound/notfound';
 import { Play } from './play/play';
 import { authGuard } from './core/guards/auth-guard';
-import { MfaSetup } from './my-profile/mfa-setup/mfa-setup';
 import { MyProfile } from './my-profile/my-profile';
-import { EditProfile } from './my-profile/edit-profile/edit-profile';
 
 export const routes: Routes = [
     {

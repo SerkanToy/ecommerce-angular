@@ -50,6 +50,9 @@
         public const string Email = "eml";
 
 
+        // multi-factor authentication secret
+        public const string MFASDisable = "mfasdisable"; 
+
 
         public static string AccountLockedMessage(DateTime endDate)
         {

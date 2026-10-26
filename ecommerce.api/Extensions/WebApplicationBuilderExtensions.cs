@@ -24,6 +24,7 @@ namespace ecommerce.api.Extensions
 
             //builder.Services.AddTransient(typeof(ITokenService), typeof(TokenService));
             builder.Services.AddScoped<IServiceUnitOfWork, ServiceUnitOfWork>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             //builder.Services.AddCors();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>

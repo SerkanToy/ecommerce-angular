@@ -1,12 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { MyProfileModel } from '../shared/models/profil/myprofilemodel';
 import { ApiResponse } from '../shared/models/apiRespose';
 import { EditMyProfileModel } from '../shared/models/profil/editmyprofilemodel';
 import { ChangePasswordModel } from '../shared/models/profil/changepasswordmodel ';
 import { DeleteAccountModel } from '../shared/models/profil/deleteaccountmodel';
-import { UserModel } from '../shared/models/account/user_model';
 import { UserProfilModel } from '../shared/models/profil/profil_model';
 import { MfaEnableModel, QrCodeModel } from '../shared/models/profil/mfa_model';
 import { EditProfileBaseModel } from '../shared/models/profil/editprofilebasemodel';
@@ -41,19 +39,19 @@ export class MyProfileService {
   }
 
   mfaStatus() {
-    return this.http.get(this.apiUrl + 'myProfile/mfa-status');
+    return this.http.get(this.apiUrl + 'profil/mfa-status');
   }
 
   getQrCode() {
-    return this.http.get<QrCodeModel>(this.apiUrl + 'myProfile/qr-code');
+    return this.http.get<ApiResponse<QrCodeModel>>(this.apiUrl + 'profil/qr-code');
   }
 
   mfaEnable(model: MfaEnableModel) {
-    return this.http.put<ApiResponse<any>>(this.apiUrl + 'myProfile/mfa-enable', model);
+    return this.http.put<ApiResponse<MfaEnableModel>>(this.apiUrl + 'profil/mfa-enable', model);
   }
 
   mfaDisable(model: EditProfileBaseModel) {
-    return this.http.put<ApiResponse<any>>(this.apiUrl + 'myProfile/mfa-disable', model);
+    return this.http.put<ApiResponse<EditProfileBaseModel>>(this.apiUrl + 'profil/mfa-disable', model);
   }
 
 }

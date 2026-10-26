@@ -1,7 +1,6 @@
 @if(accountService.$user(); as user)
 {
     <div>
-       
         <nav>
             <ul>
                 <li>
@@ -29,7 +28,7 @@
                     <hr />
                 </li>
                 <li>
-                    <button routerLink="/my-profile/mfa-setup" (click)="navigate('mfa-setup')">
+                    <button routerLink="/my-profile/setup-mfa" (click)="navigate('setup-mfa')">
                         <strong>mfa-setup</strong>
                     </button>
                 </li>
@@ -44,10 +43,10 @@
                     <app-change-password></app-change-password>
                 } @else if(page === 'delete-account'){
                     <app-delete-account></app-delete-account>
-                } @else if(page === 'mfa-setup'){
+                } @else if(page === 'setup-mfa'){
                     <app-mfa-setup></app-mfa-setup>
                 } @else {
-                    <app-my-profile></app-my-profile>
+                    <app-edit-profile></app-edit-profile>
                 }
             </div>
         </div>

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace ecommerce.api.Controllers
 {
@@ -22,10 +23,12 @@ namespace ecommerce.api.Controllers
         private IConfiguration _config;
         private HttpContext _httpContext;
         private IServiceUnitOfWork _serviceUnitOfWork;
+        private IEmailService _emailService;
 
         protected Context Context => _context ??= HttpContext.RequestServices.GetService<Context>();
         protected UserManager<UserApp> userManager => _userManager ?? HttpContext.RequestServices.GetService(typeof(UserManager<UserApp>)) as UserManager<UserApp>;
         protected IServiceUnitOfWork serviceUnitOfWork => _serviceUnitOfWork ?? HttpContext.RequestServices.GetService(typeof(IServiceUnitOfWork)) as IServiceUnitOfWork;
+        protected IEmailService emailService => _emailService ?? HttpContext.RequestServices.GetService(typeof(IEmailService)) as IEmailService;
         protected SignInManager<UserApp> signInManager => _signInManager ?? HttpContext.RequestServices.GetService(typeof(SignInManager<UserApp>)) as SignInManager<UserApp>;
         //protected ITokenService tokenService => _tokenService ?? HttpContext.RequestServices.GetService(typeof(ITokenService)) as ITokenService;
         protected IConfiguration configuration => _config ?? HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
@@ -105,31 +108,33 @@ namespace ecommerce.api.Controllers
             return null;
         }
 
-        protected async Task<UserAppDto> CreateAppUserDtoAsync(UserApp user)
+        protected async Task<UserAppDto> CreateAppUserDtoAsync(UserApp user, bool adverb = true)
         {
-            RemoveJwtCookie();
-            string jwt = await serviceUnitOfWork.TokenService.CreateJWTAsync(user);
-            SetJWTCookie(jwt);
-            //var result = await userManager.SetAuthenticationTokenAsync(user, SD.IdentityAppTokenProvider, SD.IdentityAppTokenName, jwt);
-
-            if(user.TwoFactorEnabled)
+            if(adverb)
             {
+                string jwt = await serviceUnitOfWork.TokenService.CreateJWTAsync(user);
+                SetJWTCookie(jwt);
+
                 return new UserAppDto
                 {
                     Name = $"{user.FirstName} {user.LastName}",
                     Jwt = jwt,
-                    MfaToken = await serviceUnitOfWork.TokenService.CreateMfaToken(user.UserName),
-                    Email = user.Email,
                 };
             }
-
-            return new UserAppDto
+            else
             {
-                Name = $"{user.FirstName} {user.LastName}",
-                Jwt = jwt,
-                MfaToken = "",
-                Email = user.Email,
-            };
+                string mfaToken = await serviceUnitOfWork.TokenService.CreateMfaToken(user.UserName);
+                //SetJWTCookie(jwt);
+
+                return new UserAppDto
+                {
+                    Name = $"{user.FirstName} {user.LastName}",
+                    Jwt = null,
+                    MfaToken = mfaToken
+                };
+            }
+            
+
         }
 
         private void SetJWTCookie(string jwt)
@@ -163,7 +168,7 @@ namespace ecommerce.api.Controllers
             return configuration["jwt:ClientUrl"]!;
         }
 
-        protected void Pauseresponse(double sec = 1.3)
+        protected void PauseResponse(double sec = 1.3)
         {
             var t = Task.Run(async delegate
             {

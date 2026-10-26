@@ -26,16 +26,14 @@ export class MyProfile implements OnInit {
   constructor(public accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ){
-
-  }
+  ){}
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {
       const page = params.get('page');
       if(page)
       {
-        const pageKewords = ['edit-profile','delete-account','mfa-setup','change-password'];
+        const pageKewords = ['edit-profile', 'delete-account', 'setup-mfa', 'change-password'];
         if(pageKewords.some(pk => page.includes(pk)))
         {
           this.page = page;

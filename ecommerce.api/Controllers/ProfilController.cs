@@ -170,16 +170,27 @@ namespace ecommerce.api.Controllers
                 return Unauthorized(new ApiResponse(401,message:message,displayByDefault:true,isHtmlEnabled:true));
             }
 
+            var isValid = serviceUnitOfWork.TokenService.ValidateCode(secretKey:mfa.Secret,code:mfa.Code);
+
+            if(!isValid)
+            {
+                return BadRequest(new ApiResponse(401, message: message, displayByDefault: true, isHtmlEnabled: true));
+            }
+
             var result = await userManager.SetTwoFactorEnabledAsync(user,true);
 
             if (!result.Succeeded) return BadRequest(new ApiResponse(400,displayByDefault:true));
+
+            result = await userManager.SetAuthenticationTokenAsync(user,SD.Authenticator,SD.MFAS, mfa.Secret);
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400, displayByDefault: true));
+
 
             return Ok(new ApiResponse(200,message:"Multi-Factor authentication enabled"));
         }
 
         [HttpPut]
         [ActionName("mfa-disable")]
-        public async Task<ActionResult<ApiResponse>> MfaDisable(EditMyProfileDto model)
+        public async Task<ActionResult<ApiResponse>> MfaDisable(EditProfileBaseDto model)
         {
             var user = await userManager.FindByNameAsync(User.GetUserName());
             if (user == null) return NotFound();
